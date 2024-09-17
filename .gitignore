@@ -13,8 +13,6 @@ venv.bak/
 # Environment variables files
 .env
 !.env.example
-.envrc
-.env.*
 
 # Instance folder (Flask)
 instance/
