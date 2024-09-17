@@ -1,0 +1,45 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment directories
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Environment variables files
+.env
+!.env.example
+.envrc
+.env.*
+
+# Instance folder (Flask)
+instance/
+
+# IDE configurations
+.idea/
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# SQLite database files (if using SQLite)
+*.sqlite3
+db.sqlite3
+
+# Static asset builds (if applicable)
+node_modules/
+build/
+dist/
+
+# Temporary and cache files
+*.swp
+*.swo
+*~

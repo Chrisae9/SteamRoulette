@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Blacklisted Games</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* Search Input Styles */
+        #searchInput {
+            padding: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #4a5568;
+            background-color: #2d3748;
+            color: #fff;
+        }
+
+        #searchInput::placeholder {
+            color: #a0aec0;
+        }
+
+        /* Game Card Styles */
+        .game-card {
+            background-color: #1a202c;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            color: #edf2f7;
+            position: relative;
+        }
+
+        .game-card img {
+            max-width: 60px;
+            margin-right: 10px;
+            border-radius: 8px;
+        }
+
+        .game-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0;
+            flex: 1;
+        }
+
+        /* Remove Button Styles */
+        .remove-btn {
+            background-color: transparent;
+            color: #e53e3e;
+            cursor: pointer;
+            font-size: 1.25rem;
+            width: 24px;
+            height: 24px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000; /* Ensure it's above other elements */
+        }
+
+        .remove-btn:hover {
+            color: #c53030;
+        }
+
+        /* Navigation Buttons Styles */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .return-btn {
+            background-color: #3182ce;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .return-btn:hover {
+            background-color: #2b6cb0;
+        }
+
+        .logout-btn {
+            background-color: #4a5568;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .logout-btn:hover {
+            background-color: #2d3748;
+        }
+
+        /* Scroll to Top Button Styles */
+        .to-top-btn {
+            display: none;
+            position: fixed;
+            bottom: 20px; /* Keep this value consistent */
+            right: 20px;
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            transition: background-color 0.3s;
+        }
+
+        .to-top-btn:hover {
+            background-color: #2b6cb0;
+        }
+
+        /* Hide Scroll to Top Button on Mobile Devices */
+        @media (max-width: 640px) {
+            .to-top-btn {
+                display: none;
+            }
+        }
+
+        /* Success Message Styles */
+        .success-message {
+            display: none;
+            background-color: rgba(56, 161, 105, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .success-message.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .success-message.hide {
+            opacity: 0;
+        }
+
+        /* Add padding to the bottom of the container */
+        .content-container {
+            padding-bottom: 100px; /* Adjust this value as needed */
+        }
+
+        /* Loading Spinner Styles */
+        #loadingSpinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #loadingSpinner .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3182ce;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="mainContent" class="container mx-auto p-8 content-container" style="display: none;">
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
+            <a href="{{ url_for('main_routes.random') }}" class="return-btn">Return</a>
+            <a href="{{ url_for('auth_routes.logout') }}" class="logout-btn">Logout</a>
+        </div>
+
+        <h1 class="text-2xl font-bold mb-4 text-center">Blacklisted Games</h1>
+
+        <!-- Search Input -->
+        <input type="text" id="searchInput" placeholder="Search for a game..." onkeyup="filterGames()" class="bg-gray-800 text-white p-2 mb-4 w-full rounded-lg border border-gray-600 placeholder-gray-400">
+
+        <!-- Games List -->
+        <div id="gamesList">
+            {% for game in games %}
+            <div class="game-card" id="game-{{ game.appid }}">
+                <img src="{{ game.image_url }}" alt="{{ game.name }}">
+                <h3 class="game-title">{{ game.name }}</h3>
+                <button class="remove-btn" onclick="removeGame({{ game.appid }})">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message">Game removed successfully!</div>
+
+        <!-- Scroll to Top Button -->
+        <button id="toTopBtn" class="to-top-btn" onclick="scrollToTop()">
+            <i class="fas fa-chevron-up"></i>
+        </button>
+    </div>
+
+    <script>
+        // Show main content and hide loading spinner when the page is fully loaded
+        window.addEventListener('load', function() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        });
+
+        // Filter Games Function
+        function filterGames() {
+            var input = document.getElementById("searchInput").value.toUpperCase();
+            var cards = document.getElementsByClassName("game-card");
+
+            Array.from(cards).forEach(function(card) {
+                var title = card.querySelector(".game-title").textContent.toUpperCase();
+                if (title.includes(input)) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
+        // Remove Game Function
+        function removeGame(appid) {
+            fetch("{{ url_for('main_routes.blacklist') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                    "appid": appid
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    // Remove the game card from the DOM
+                    document.getElementById(`game-${appid}`).remove();
+                    // Show the success message
+                    const successMessage = document.getElementById('successMessage');
+                    successMessage.classList.add('show');
+                    // Hide the success message after 1 second
+                    setTimeout(() => {
+                        successMessage.classList.add('hide');
+                        setTimeout(() => {
+                            successMessage.classList.remove('show', 'hide');
+                        }, 500); // wait for the transition to end
+                    }, 1000);
+                } else {
+                    alert("Failed to remove game. Please try again.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Failed to remove game. Please try again.");
+            });
+        }
+
+        // Scroll to Top Functionality
+        window.addEventListener('scroll', function() {
+            var toTopBtn = document.getElementById("toTopBtn");
+            if (window.pageYOffset > 100) {
+                toTopBtn.style.display = "flex";
+            } else {
+                toTopBtn.style.display = "none";
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login with Steam</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Button Styles */
+        .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            cursor: pointer;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-steam {
+            background-color: #171A21; /* Steam's dark background color */
+        }
+
+        .btn-steam:hover {
+            background-color: #2a475e; /* Lighter blue on hover */
+        }
+
+        /* Container Box Styles */
+        .container-box {
+            background-color: #1a202c;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.7);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Title Styling */
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        /* Subtitle Styling */
+        p {
+            color: #cbd5e0;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Image Styling */
+        .hero-image {
+            width: 200px;
+            margin-bottom: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Body Styling */
+        body {
+            background-color: #1a202c;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Centering Content Vertically */
+        .min-h-screen {
+            min-height: calc(100vh - 4rem); /* Adjusted to account for footer height */
+        }
+
+        /* Footer Styling */
+        footer {
+            text-align: center;
+            padding: 1rem 0;
+            color: #a0aec0;
+            font-size: 0.875rem;
+        }
+
+        footer a {
+            color: #3182ce;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Remove Unnecessary Scrolling */
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+    <div class="container mx-auto flex items-center justify-center min-h-screen">
+        <div class="container-box">
+            <h1 class="font-bold">Random Steam Game Picker</h1>
+            <img src="{{ url_for('static', filename='you-got-games-on-yo-phone-dog.png') }}" 
+                 alt="Random Steam Game Picker" 
+                 class="hero-image mx-auto">
+            <a href="{{ url_for('auth_routes.login') }}" class="btn btn-steam">
+                Sign in with Steam
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        Made with ❤️ by <a href="https://github.com/chrisae9" target="_blank">Chris</a>
+    </footer>
+</body>
+</html>

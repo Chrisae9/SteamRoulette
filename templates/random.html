@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Random Steam Game</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Button Styles */
+        .btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-blue {
+            background-color: #3182ce;
+        }
+
+        .btn-blue:hover {
+            background-color: #2b6cb0;
+        }
+
+        .btn-gray {
+            background-color: #4a5568;
+        }
+
+        .btn-gray:hover {
+            background-color: #2d3748;
+        }
+
+        .btn-red {
+            background-color: #e53e3e;
+        }
+
+        .btn-red:hover {
+            background-color: #c53030;
+        }
+
+        .btn-randomize {
+            background-color: #3b82f6;
+            width: 100%;
+        }
+
+        .btn-randomize:hover {
+            background-color: #2b6cb0;
+        }
+
+        /* Slider Styles */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            margin-top: 10px;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(to right, #3b82f6 0%, #3b82f6 var(--value), #4b5563 var(--value), #4b5563 100%);
+            border-radius: 8px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.5);
+            position: relative;
+            top: -6px; /* Adjusts the thumb dot to be centered */
+        }
+
+        /* Button Group Styles */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group .btn, .button-group form {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Adjustments for Smaller Screens */
+        @media (max-width: 640px) {
+            h1.text-3xl {
+                font-size: 1.5rem; /* Reduce font size for the header */
+            }
+            h2.text-2xl {
+                font-size: 1.25rem; /* Reduce font size for the game title */
+            }
+        }
+
+        /* Loading Overlay Styles */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(26, 32, 44, 0.9); /* Dark background with opacity */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Ensure it covers everything */
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="container mx-auto p-8" id="mainContent">
+        <!-- Header -->
+        <h1 class="text-3xl font-bold mb-6 text-center">Your Random Steam Game</h1>
+        
+        <!-- Game Information -->
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg text-center">
+            <h2 class="text-2xl font-semibold mb-4">{{ game_name }}</h2>
+            <img class="mx-auto mb-4 rounded-lg" src="{{ game_image_url }}" alt="{{ game_name }}">
+            
+            {% set playtime_minutes = playtime_hours * 60 %}
+            {% if playtime_minutes < 60 %}
+                <p class="text-lg mb-4">Total Playtime: <span class="font-bold">{{ playtime_minutes|round(0) }} minutes</span></p>
+            {% else %}
+                <p class="text-lg mb-4">Total Playtime: <span class="font-bold">{{ playtime_hours|round(1) }} hours</span></p>
+            {% endif %}
+
+            {% if last_played %}
+            <p class="text-lg mb-4">Last Played: <span>{{ last_played }}</span></p>
+            {% endif %}
+
+            <!-- Randomize Again Form -->
+            <form method="post" action="{{ url_for('main_routes.random') }}">
+                <div class="mb-6 text-left">
+                    <label for="min_playtime" class="block text-sm font-medium text-gray-300">Minimum Playtime:</label>
+                    <input 
+                        type="range" 
+                        id="min_playtime" 
+                        name="min_playtime" 
+                        min="0" 
+                        max="1200" 
+                        value="{{ min_playtime }}" 
+                        oninput="updateMinPlaytimeValue(this.value)" 
+                        class="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                    >
+                    <span id="min_playtime_value" class="text-sm text-gray-400">0 minutes</span>
+                </div>
+                <button type="submit" class="btn btn-randomize py-2 px-4 rounded">
+                    Randomize
+                </button>
+            </form>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="button-group mt-6">
+            <form action="{{ url_for('main_routes.blacklist_game', appid=random_game['appid']) }}" method="post">
+                <!-- Include min_playtime as a hidden input -->
+                <input type="hidden" name="min_playtime" value="{{ min_playtime }}">
+                <button type="submit" class="btn btn-red">Blacklist</button>
+            </form>
+            <a href="{{ url_for('main_routes.blacklist') }}" class="btn btn-blue text-center">Manage</a>
+            <a href="{{ url_for('auth_routes.logout') }}" class="btn btn-gray text-center">Logout</a>
+        </div>
+    </div>
+
+    <script>
+        function updateMinPlaytimeValue(value) {
+            const slider = document.getElementById('min_playtime');
+            slider.style.setProperty('--value', `${(value / slider.max) * 100}%`);
+
+            if (value < 60) {
+                document.getElementById('min_playtime_value').innerText = `${value} minutes`;
+            } else {
+                const hours = (value / 60).toFixed(1);
+                document.getElementById('min_playtime_value').innerText = `${hours} hours`;
+            }
+        }
+
+        window.onload = function() {
+            // Hide the loading overlay
+            document.getElementById('loadingOverlay').style.display = 'none';
+
+            const slider = document.getElementById('min_playtime');
+            updateMinPlaytimeValue(slider.value);
+        }
+    </script>
+</body>
+</html>

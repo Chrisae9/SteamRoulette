@@ -1,0 +1,20 @@
+services:
+  steamwebapp:
+    container_name: randomizer
+    build: .
+    restart: unless-stopped
+    ports:
+      - "5412:5000"  # Map port 5412 on the host to port 5000 in the container
+    environment:
+      - FLASK_ENV=production  # or production
+    env_file:
+      - .env  # Use .env file instead of .envrc
+    volumes:
+      - .:/app
+      - ./instance:/app/instance  # Mount the instance folder for SQLite persistence
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.steamwebapp.rule=Host(`steam.chis.dev`)"
+      - "traefik.http.routers.steamwebapp.entrypoints=websecure"
+      - "traefik.http.routers.steamwebapp.tls.certresolver=cloudflare"
+      - "traefik.http.services.steamwebapp.loadbalancer.server.port=5000"  # Specify the internal port for Traefik to route to
