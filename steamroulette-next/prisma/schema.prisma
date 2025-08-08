@@ -1,0 +1,17 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model BlacklistedGame {
+  id       Int    @id @default(autoincrement())
+  steamId  String
+  appid    Int
+
+  @@unique([steamId, appid])
+  @@index([steamId, appid], name: "steam_appid_idx")
+}

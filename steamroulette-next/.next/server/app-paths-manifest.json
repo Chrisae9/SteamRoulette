@@ -1,0 +1,12 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/auth/authorized/route": "app/api/auth/authorized/route.js",
+  "/api/auth/logout/route": "app/api/auth/logout/route.js",
+  "/api/blacklist/add/[appid]/route": "app/api/blacklist/add/[appid]/route.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/api/blacklist/route": "app/api/blacklist/route.js",
+  "/api/random/route": "app/api/random/route.js",
+  "/blacklist/page": "app/blacklist/page.js",
+  "/random/page": "app/random/page.js",
+  "/page": "app/page.js"
+}
